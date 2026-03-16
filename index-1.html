@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>مهامي ✦</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <div class="logo">مهامي ✦</div>
+      <div class="header-sub" id="headerSub">0 من 0 مكتملة</div>
+      <div class="date-badge" id="dateBadge">📅 ...</div>
+    </div>
+    <div class="header-btns">
+      <button class="btn-stats" onclick="toggleView()">📊 إحصائيات</button>
+      <button class="btn-new" onclick="openModal()">+ جديد</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- LIST VIEW -->
+  <div id="listView">
+    <input class="search-input" placeholder="🔍 ابحث في مهامك..." oninput="renderTasks()" id="searchInput"/>
+    <div class="pills" id="filterPills">
+      <button class="pill active" onclick="setFilter('all',this)">الكل</button>
+      <button class="pill" onclick="setFilter('active',this)">نشطة</button>
+      <button class="pill" onclick="setFilter('done',this)">مكتملة</button>
+      <button class="pill" id="overdueBtn" onclick="setFilter('overdue',this)">⚠️ متأخرة</button>
+    </div>
+    <div class="pills" id="catPills">
+      <button class="pill active" onclick="setCat('all',this)">الكل</button>
+      <button class="pill" onclick="setCat('work',this)">💼 العمل</button>
+      <button class="pill" onclick="setCat('personal',this)">🌿 شخصي</button>
+      <button class="pill" onclick="setCat('health',this)">❤️ صحة</button>
+      <button class="pill" onclick="setCat('learning',this)">📚 تعلم</button>
+      <button class="pill" onclick="setCat('home',this)">🏠 المنزل</button>
+    </div>
+    <div class="sort-bar">
+      <span id="taskCount">0 مهمة</span>
+      <select class="sort-select" onchange="sortBy=this.value;renderTasks()">
+        <option value="date">الأحدث</option>
+        <option value="priority">الأولوية</option>
+        <option value="due">الموعد</option>
+      </select>
+    </div>
+    <div id="taskList"></div>
+  </div>
+
+  <!-- STATS VIEW -->
+  <div id="statsView" style="display:none">
+    <div class="stats-grid" id="statsGrid"></div>
+    <div class="ring-card">
+      <div class="ring-title">نسبة الإنجاز الكلية</div>
+      <div class="ring-wrap">
+        <svg width="140" height="140" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="56" fill="none" stroke="#1a1a1a" stroke-width="12"/>
+          <circle id="ringCircle" cx="70" cy="70" r="56" fill="none"
+            stroke="url(#grad)" stroke-width="12" stroke-linecap="round"
+            transform="rotate(-90 70 70)"/>
+          <defs>
+            <linearGradient id="grad" x1="0%" y1="0%" x2="100%">
+              <stop offset="0%" stop-color="#C084FC"/>
+              <stop offset="100%" stop-color="#818CF8"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="ring-pct" id="ringPct">0%</div>
+      </div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-title">التوزيع حسب التصنيف</div>
+      <div id="catStats"></div>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">✨ مهمة جديدة</div>
+      <button class="btn-close" onclick="closeModal()">✕</button>
+    </div>
+    <label class="form-label">
+      <span>عنوان المهمة *</span>
+      <input class="form-input" id="fTitle" placeholder="اكتب عنوان المهمة..."/>
+    </label>
+    <div class="form-grid">
+      <label class="form-label" style="margin-bottom:0">
+        <span>الأولوية</span>
+        <select class="form-select" id="fPriority">
+          <option value="high">🔴 عالية</option>
+          <option value="medium" selected>🟡 متوسطة</option>
+          <option value="low">🟢 منخفضة</option>
+        </select>
+      </label>
+      <label class="form-label" style="margin-bottom:0">
+        <span>التصنيف</span>
+        <select class="form-select" id="fCategory">
+          <option value="work">💼 العمل</option>
+          <option value="personal">🌿 شخصي</option>
+          <option value="health">❤️ صحة</option>
+          <option value="learning">📚 تعلم</option>
+          <option value="home">🏠 المنزل</option>
+        </select>
+      </label>
+    </div>
+    <label class="form-label">
+      <span>تاريخ الاستحقاق</span>
+      <input class="form-input" type="date" id="fDueDate" style="color-scheme:dark"/>
+    </label>
+    <label class="form-label">
+      <span>ملاحظات</span>
+      <textarea class="form-input form-textarea" id="fNotes" rows="3" placeholder="أضف ملاحظاتك هنا..."></textarea>
+    </label>
+    <div class="subtasks-area">
+      <span>المهام الفرعية</span>
+      <div id="subList"></div>
+      <div class="add-sub-row">
+        <input class="add-sub-input" id="subInput" placeholder="أضف مهمة فرعية..." onkeydown="if(event.key==='Enter')addSubtask()"/>
+        <button class="btn-add-sub" onclick="addSubtask()">+</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">إلغاء</button>
+      <button class="btn-save" onclick="saveTask()" id="btnSave">إضافة المهمة ✨</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRAISE POPUP -->
+<div class="praise-overlay" id="praiseOverlay">
+  <div class="praise-box">
+    <div class="praise-emoji">🌚💜</div>
+    <div class="praise-msg" id="praiseMsg"></div>
+    <button class="praise-btn" onclick="closePraise()">إيلافيو كركم 🌚💜</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
